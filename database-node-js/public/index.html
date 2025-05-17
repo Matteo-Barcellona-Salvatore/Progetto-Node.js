@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modulo di contatto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+    <h1 class="text-2xl font-semibold mb-6 text-gray-800">Contattaci</h1>
+    <form id="contactForm" class="space-y-6">
+      <div>
+        <label for="name" class="block text-gray-700 font-medium mb-1">Nome</label>
+        <input type="text" id="name" required
+          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
+        <input type="email" id="email" required
+          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label for="message" class="block text-gray-700 font-medium mb-1">Messaggio</label>
+        <textarea id="message" rows="4" required
+          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+      </div>
+      <button type="submit"
+        class="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition-colors">Invia</button>
+      <div id="alertMsg" class="mt-4"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const alertMsg = document.getElementById('alertMsg');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      alertMsg.innerHTML = '';
+
+      const data = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        message: form.message.value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alertMsg.innerHTML = `<div class="text-green-700 bg-green-100 border border-green-300 rounded p-3">Messaggio inviato! Grazie ${result.name}.</div>`;
+          form.reset();
+        } else {
+          alertMsg.innerHTML = `<div class="text-red-700 bg-red-100 border border-red-300 rounded p-3">${result.error || "Errore durante l'invio"}</div>`;
+        }
+      } catch (error) {
+        alertMsg.innerHTML = `<div class="text-red-700 bg-red-100 border border-red-300 rounded p-3">Errore di rete.</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
